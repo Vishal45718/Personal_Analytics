@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-zinc-100 font-sans antialiased selection:bg-primary/30;
+  }
+}
+
+.glass-panel {
+  @apply bg-surface/50 backdrop-blur-md border border-white/5 shadow-2xl rounded-2xl;
+}
+
+.brutal-card {
+  @apply border border-zinc-800/80 bg-surface/80 shadow-[4px_4px_0_0_rgba(161,161,170,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700/80 rounded-xl relative overflow-hidden backdrop-blur-lg;
+}
+
+.brutal-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: theme('colors.background');
+}
+::-webkit-scrollbar-thumb {
+  background: theme('colors.surfaceHighlight');
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.zinc.600');
+}
