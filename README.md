@@ -167,7 +167,8 @@ Personal_Analytics/
 
 ## Screenshots / Demo
 
-_Adding sooon_
+![Dashboard](screenshots/personal_analytics_1.jpg)
+![Analytics](screenshots/personal_analytics_2.jpg)
 
 ---
 
