@@ -75,6 +75,43 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
+Create a `.env` file in `backend/` based on `.env.example` and configure OAuth credentials plus session settings.
+
+### OAuth Setup
+
+The app supports Google and GitHub OAuth for authentication. Configure your OAuth providers:
+
+#### Google OAuth
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Set authorized redirect URIs:
+   - `http://localhost:8000/auth/callback/google` (development)
+   - `https://yourdomain.com/auth/callback/google` (production)
+
+#### GitHub OAuth
+1. Go to [GitHub Settings > Developer settings > OAuth Apps](https://github.com/settings/developers)
+2. Create a new OAuth App
+3. Set Authorization callback URL:
+   - `http://localhost:8000/auth/callback/github` (development)
+   - `https://yourdomain.com/auth/callback/github` (production)
+
+Add the credentials to your `.env` file:
+```
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+### Production Deployment
+
+For production deployment:
+1. Update `BACKEND_ROOT_URL` and `FRONTEND_ROOT_URL` in your `.env` file
+2. Set `SESSION_COOKIE_SECURE=1` for HTTPS-only cookies
+3. Update OAuth redirect URIs in provider consoles to use your production domain
+4. Generate a secure random string for `SESSION_SECRET_KEY`
 
 ---
 
