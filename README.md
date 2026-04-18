@@ -87,15 +87,15 @@ The app supports Google and GitHub OAuth for authentication. Configure your OAut
 3. Enable Google+ API
 4. Create OAuth 2.0 credentials
 5. Set authorized redirect URIs:
-   - `http://localhost:8000/auth/callback/google` (development)
-   - `https://yourdomain.com/auth/callback/google` (production)
+   - `http://localhost:8000/api/auth/google/callback` (development)
+   - `https://yourdomain.com/api/auth/google/callback` (production)
 
 #### GitHub OAuth
 1. Go to [GitHub Settings > Developer settings > OAuth Apps](https://github.com/settings/developers)
 2. Create a new OAuth App
 3. Set Authorization callback URL:
-   - `http://localhost:8000/auth/callback/github` (development)
-   - `https://yourdomain.com/auth/callback/github` (production)
+   - `http://localhost:8000/api/auth/github/callback` (development)
+   - `https://yourdomain.com/api/auth/github/callback` (production)
 
 Add the credentials to your `.env` file:
 ```
@@ -108,10 +108,9 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 ### Production Deployment
 
 For production deployment:
-1. Update `BACKEND_ROOT_URL` and `FRONTEND_ROOT_URL` in your `.env` file
-2. Set `SESSION_COOKIE_SECURE=1` for HTTPS-only cookies
+1. Update `FRONTEND_URL` and `CORS_ORIGINS` in your `.env` file
+2. Ensure `SECRET_KEY` is set to a secure, random string for JWT signing
 3. Update OAuth redirect URIs in provider consoles to use your production domain
-4. Generate a secure random string for `SESSION_SECRET_KEY`
 
 ---
 
@@ -150,6 +149,9 @@ App: http://localhost:5173
 
 ### Seed Sample Data
 
+The easiest way to generate sample data for the MVP is to click the **"Generate Demo Data"** button directly on the empty Dashboard after logging in. 
+
+Alternatively, you can seed the database manually (for testing without a user session):
 ```bash
 cd backend
 python seed.py
@@ -172,7 +174,10 @@ Personal_Analytics/
     ├── public/
     ├── src/
     │   ├── components/
-    │   │   └── Dashboard.tsx
+    │   │   ├── Dashboard.tsx
+    │   │   └── Login.tsx
+    │   ├── context/
+    │   │   └── AuthContext.tsx
     │   ├── App.tsx
     │   ├── main.tsx
     │   └── index.css
@@ -195,12 +200,30 @@ Personal_Analytics/
 
 ---
 
+### Authentication (OAuth)
+
+- `GET /api/auth/{provider}/login`
+  - Initiate login flow for Google or GitHub
+- `GET /api/auth/{provider}/callback`
+  - Callback endpoint for OAuth provider to return token
+- `GET /api/users/me`
+  - Get the currently authenticated user's profile
+
+---
+
 ### Insights
 
 - `GET /api/insights`
   - Get AI-generated insights
+- `GET /api/analytics/summary`
+  - Get comprehensive productivity and trend analytics
 
 ---
+
+### Data Initialization
+
+- `POST /api/seed`
+  - Generate demo logs and insights for the authenticated user
 
 ## Screenshots / Demo
 
