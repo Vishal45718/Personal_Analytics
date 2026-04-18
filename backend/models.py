@@ -7,7 +7,11 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=True)
+    name = Column(String(255))
+    avatar = Column(Text)
+    provider = Column(String(50))
+    provider_id = Column(String(255))
     timezone = Column(String(50), default='UTC')
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
 

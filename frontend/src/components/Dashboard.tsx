@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from 'recharts';
 import { Activity, Brain, AlertTriangle, Info, Moon, TrendingUp, Clock, Zap } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import clsx from 'clsx';
 import { format } from 'date-fns';
+import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -70,6 +72,7 @@ const Dashboard = () => {
     const [logs, setLogs] = useState<LogData[]>([]);
     const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         fetchData();
@@ -111,7 +114,30 @@ const Dashboard = () => {
                     <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-500 font-sans tracking-tight">
                         Personal Analytics
                     </h1>
-                    <p className="text-zinc-400 mt-2 text-lg">Brutally honest developer metrics.</p>
+                    <div className="flex items-center gap-4 mt-4">
+                        {user && (
+                            <div className="flex items-center gap-3">
+                                {user.avatar ? (
+                                    <img src={user.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-zinc-800" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-700">
+                                        {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                                    </div>
+                                )}
+                                <div>
+                                    <div className="text-zinc-200 font-medium">{user.name || 'User'}</div>
+                                    <div className="text-zinc-500 text-xs">{user.email}</div>
+                                </div>
+                                <button
+                                    onClick={logout}
+                                    className="ml-4 p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+                                    title="Logout"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {analyticsSummary && (
                     <div className="flex gap-6 text-sm">
@@ -130,6 +156,29 @@ const Dashboard = () => {
                     </div>
                 )}
             </header>
+
+            {(!insightsData || insightsData.insights.length === 0) && logs.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <Brain className="w-16 h-16 text-zinc-600 mb-6" />
+                    <h2 className="text-2xl font-bold text-zinc-300 mb-2">No Data Available</h2>
+                    <p className="text-zinc-500 max-w-md mx-auto mb-8">
+                        Your dashboard is empty. You can generate some realistic demo data to see how the analytics engine works.
+                    </p>
+                    <button
+                        onClick={async () => {
+                            try {
+                                await axios.post(`${API_URL}/seed`);
+                                window.location.reload();
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }}
+                        className="px-6 py-3 bg-zinc-100 text-black font-semibold rounded-xl hover:bg-white transition-colors"
+                    >
+                        Generate Demo Data
+                    </button>
+                </div>
+            )}
 
             {insightsData && insightsData.insights.length > 0 && (
                 <div className="space-y-4">
