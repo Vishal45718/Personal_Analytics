@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from 'recharts';
-import { Activity, Brain, Code, AlertTriangle, Info, Moon, TrendingUp, Clock, Zap } from 'lucide-react';
+import { Activity, Brain, AlertTriangle, Info, Moon, TrendingUp, Clock, Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 type Insight = {
   id: string;
@@ -69,6 +69,7 @@ const Dashboard = () => {
     const [insightsData, setInsightsData] = useState<APIResponse | null>(null);
     const [logs, setLogs] = useState<LogData[]>([]);
     const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -76,6 +77,7 @@ const Dashboard = () => {
 
     const fetchData = async () => {
         try {
+            setError(null);
             const [insightsRes, logsRes, analyticsRes] = await Promise.all([
                 axios.get(`${API_URL}/insights`),
                 axios.get(`${API_URL}/logs`),
@@ -85,25 +87,22 @@ const Dashboard = () => {
             setLogs(logsRes.data);
             setAnalyticsSummary(analyticsRes.data);
         } catch (error) {
-            console.error("Backend error, loading mock state for dev:", error);
-            setInsightsData({
-                insights: [
-                    {id: "1", severity: "critical", category: "sleep", title: "Chronic sleep debt detected", body: "Poor sleep is costing you 23.5% productivity. Your output drops from 78.2 to 54.7 after bad nights."},
-                    {id: "2", severity: "warning", category: "productivity", title: "Post-11PM work is mostly theater", body: "Your focus depth drops 31% after 11 PM vs your 9-5 window"}
-                ],
-                tomorrow_prediction: 43
-            });
-            setLogs([
-                {id: 0, date: "2026-04-10", sleep_start: null, sleep_end: null, sleep_duration_min: 300, sleep_quality: 2, deep_sleep_pct: 12.5, mood_score: 2, notes: "Tired day", sessions: []},
-                {id: 1, date: "2026-04-11", sleep_start: null, sleep_end: null, sleep_duration_min: 450, sleep_quality: 4, deep_sleep_pct: 22.1, mood_score: 4, notes: "Good rest", sessions: []},
-                {id: 2, date: "2026-04-12", sleep_start: null, sleep_end: null, sleep_duration_min: 420, sleep_quality: 3, deep_sleep_pct: 18.3, mood_score: 3, notes: "Okay", sessions: []},
-                {id: 3, date: "2026-04-13", sleep_start: null, sleep_end: null, sleep_duration_min: 480, sleep_quality: 5, deep_sleep_pct: 24.7, mood_score: 5, notes: "Excellent", sessions: []},
-                {id: 4, date: "2026-04-14", sleep_start: null, sleep_end: null, sleep_duration_min: 270, sleep_quality: 2, deep_sleep_pct: 8.9, mood_score: 2, notes: "Bad night", sessions: []},
-                {id: 5, date: "2026-04-15", sleep_start: null, sleep_end: null, sleep_duration_min: 330, sleep_quality: 2, deep_sleep_pct: 11.2, mood_score: 2, notes: "Still tired", sessions: []},
-                {id: 6, date: "2026-04-16", sleep_start: null, sleep_end: null, sleep_duration_min: 450, sleep_quality: 4, deep_sleep_pct: 21.8, mood_score: 4, notes: "Better", sessions: []}
-            ]);
+            console.error("Backend error:", error);
+            setError("Failed to load analytics data from the server. Please check if the backend is running and accessible.");
         }
     };
+
+    if (error) {
+        return (
+            <div className="p-8 max-w-7xl mx-auto space-y-8 flex flex-col items-center justify-center min-h-[50vh]">
+                <div className="brutal-card p-8 border border-red-500/20 bg-red-500/5 text-center rounded-2xl max-w-md">
+                    <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-red-400 mb-2">Connection Error</h2>
+                    <p className="text-zinc-400">{error}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8">
